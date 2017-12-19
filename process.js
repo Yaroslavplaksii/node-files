@@ -143,7 +143,7 @@ fs.readFile('test.txt','utf-8',(error,data)=>{
     if(error) throw error;
     console.log(data);
 });*/
-
+/*
 const fs = require('fs');
 function getValue(flag){
     const index = process.argv.indexOf(flag);
@@ -153,7 +153,112 @@ const filename = getValue('-f');
 fs.readFile(filename,'utf-8',(error,data)=>{
     if(error) return console.log('Такого файлу немає');
     console.log(data);
+});*/
+/*
+const fs = require('fs');
+fs.writeFile('test.txt','hello world',error => {
+    if(error) throw error;    
+    console.log("File created");
+});*/
+/*
+const fs = require('fs');
+fs.appendFile('test.txt','hello world',error => {
+    if(error) throw error;    
+    console.log("File created");
 });
+*/
+
+/*
+const fs = require('fs');
+function getValue(flag){
+    const index = process.argv.indexOf(flag);
+    return (index > -1)? process.argv[index + 1]:null;
+}
+const filename = getValue('-f');
+const content = getValue('-c');
+fs.appendFile(filename,content,error => {
+    if(error) throw error;    
+    console.log("File created");
+});*/
+
+
+/*
+const fs = require('fs');
+fs.watch(__dirname,(event,filename)=>{
+    console.log(event);
+    console.log(filename);
+});
+*/
+/*
+const fs = require('fs');
+const watcher = fs.watch(__dirname,(event,filename)=>{
+    console.log(event);
+    console.log(filename);
+});
+watcher.on('error',error => console.log(error));
+*/
+
+const fs = require('fs');
+
+const command = process.argv[2];
+const title = process.argv[3];
+const content = process.argv[4];
+
+switch(command){
+    case 'list':
+    list((error,notes)=>{
+        if(error) return console.log(error.message);
+        notes.forEach((note,index)=>console.log(`${index}.${note.title}`));
+    });
+    break;
+    
+    case 'view':
+    view();
+    break;
+    
+    case 'create':
+    create();
+    break;
+    
+    case 'remove':
+    remove();
+    break;
+    
+    default:
+    console.log("No command");
+}
+
+function list(done){//тут ф-я приймає параметр функцію, як правило її називають done
+    fs.readFile('notes.json',(error,data)=>{
+        if(error) return console.log(error.message);
+        const notes = JSON.parse(data);
+        done(null,notes);//тут відбуваєтся виклик функції list() з switch        
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
