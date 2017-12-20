@@ -197,13 +197,11 @@ const watcher = fs.watch(__dirname,(event,filename)=>{
 });
 watcher.on('error',error => console.log(error));
 */
-
+/*
 const fs = require('fs');
-
-const command = process.argv[2];
-const title = process.argv[3];
+const command = process.argv[2]; //беремо з командного рядка команди
+const title = process.argv[3]; //номер вказує на слово по порядку
 const content = process.argv[4];
-
 switch(command){
     case 'list':
     list((error,notes)=>{
@@ -213,15 +211,24 @@ switch(command){
     break;
     
     case 'view':
-    view();
+    view(title,(error,note)=>{
+         if(error) return console.log(error.message);
+         console.log(`# ${note.tile}\r\n\r\n---\r\n\r\n${note.content}`);
+    });
     break;
     
     case 'create':
-    create();
+    create(title,content,error => {
+       if(error) return console.log(error.message);
+       console.log('Замітка створена'); 
+    });
     break;
     
     case 'remove':
-    remove();
+    remove(title,error=>{
+         if(error) return console.log(error.message);
+         console.log('Замітка видалена'); 
+    });
     break;
     
     default:
@@ -230,17 +237,136 @@ switch(command){
 
 function list(done){//тут ф-я приймає параметр функцію, як правило її називають done
     fs.readFile('notes.json',(error,data)=>{
-        if(error) return console.log(error.message);
-        const notes = JSON.parse(data);
+        if(error) return done(error);
+        const notes = JSON.parse(data);//парсимо вджейсон і записуємо в файл
         done(null,notes);//тут відбуваєтся виклик функції list() з switch        
     });
 }
+function view(title,done){
+    fs.readFile('notes.json',(error,data)=>{
+        if(error) return done(error);
+        const notes = JSON.parse(data);
+        const note = notes.find(note=>note.title === title);
+        if(!note) return done(new Error);        
+        done(null,notes);        
+    });
+}
+function create(title,content,done){
+       fs.readFile('notes.json',(error,data)=>{        
+        if(error) return done(error);     
+       const notes = JSON.parse(data);
+        notes.push({ title, content });  //тут формується JSON рядок        
+        const json = JSON.stringify(notes);//для того щоб записати в файл, перетворюємо в рядок    
+        fs.writeFile('notes.json',json,error => {
+            if(error) return done(error);
+            done();
+        });
+    });
+}
+function remove(title,done){
+       fs.readFile('notes.json',(error,data)=>{        
+        if(error) return done(error);     
+        let notes = JSON.parse(data);
+        notes = notes.filter(note=>note.title !== title); 
+        const json = JSON.stringify(notes);    
+        fs.writeFile('notes.json',json,error => {
+            if(error) return done(error);
+            done();
+        });
+    });
+}*/
 
 
+const fs = require('fs');
+const command = process.argv[2]; //беремо з командного рядка команди
+const title = process.argv[3]; //номер вказує на слово по порядку
+const content = process.argv[4];
+switch(command){
+    case 'list':
+    list((error,notes)=>{
+        if(error) return console.log(error.message);
+        notes.forEach((note,index)=>console.log(`${index}.${note.title}`));
+    });
+    break;
+    
+    case 'view':
+    view(title,(error,note)=>{
+         if(error) return console.log(error.message);
+         console.log(`# ${note.tile}\r\n\r\n---\r\n\r\n${note.content}`);
+    });
+    break;
+    
+    case 'create':
+    create(title,content,error => {
+       if(error) return console.log(error.message);
+       console.log('Замітка створена'); 
+    });
+    break;
+    
+    case 'remove':
+    remove(title,error=>{
+         if(error) return console.log(error.message);
+         console.log('Замітка видалена'); 
+    });
+    break;
+    
+    default:
+    console.log("No command");
+}
 
-
-
-
+function list(done){//тут ф-я приймає параметр функцію, як правило її називають done
+    load(done);
+}
+function view(title,done){
+    load((error,notes)=>{
+        if(error) return done(error);       
+        const note = notes.find(note=>note.title === title);
+        if(!note) return done(new Error);        
+        done(null,notes);        
+    });
+}
+function create(title,content,done){
+       load((error,notes)=>{        
+        if(error) return done(error); 
+        notes.push({ title, content });  //тут формується JSON рядок        
+       save(notes,done);
+    });
+}
+function remove(title,done){
+      load((error,notes)=>{        
+        if(error) return done(error);
+        notes = notes.filter(note=>note.title !== title); 
+       save(notes,done);
+    });
+}
+function load(done){
+    fs.readFile('notes.json',(error,data)=>{
+        if(error){
+            if(error.code === 'ENOENT'){
+                return done(null,[]);
+            }else{
+                return done(error);
+            }
+        }
+        try{
+            const notes = JSON.parse(data);
+            done(null,notes);
+        }catch(error){
+            done(new Error('помилка роботи з файлом'));
+        }
+    });
+}
+function save(notes,done){
+    try{
+        const json = JSON.stringify(notes);
+        fs.writeFile('notes.json',json,error=>{
+            if(error) return done(error);
+            done();
+        });
+    }catch(error){
+        done(error);
+    }
+}
 
 
 
