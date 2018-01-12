@@ -276,7 +276,7 @@ function remove(title,done){
     });
 }*/
 
-
+/*
 const fs = require('fs');
 const command = process.argv[2]; //беремо з командного рядка команди
 const title = process.argv[3]; //номер вказує на слово по порядку
@@ -367,13 +367,21 @@ function save(notes,done){
         done(error);
     }
 }
+*/
+/*
+const db = require('./db.js');
+const users = db.getUsers();
+console.log(users);*/
 
+/*
+const db = require('./db.js');
+const users = db.getUsers();
+console.log(users);*/
 
-
-
-
-
-
+/*
+const {users, getUsers, User} = require('./db.js'); //дестриктеризуюче присвоювання
+const user = new User();
+console.log(user);*/
 
 
 
